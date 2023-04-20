@@ -8,6 +8,7 @@ BPE   = FALSE
 Train = FALSE
 Run   = TRUE
 
+cat('Make sure you have downloaded the required weights: \n https://drive.google.com/file/d/1XKr__cI4ZBZEiv1EGZc1Yc-bCQGOobKX \n and \n https://drive.google.com/file/d/1VDVRLk0o6wsdrlGTfF8xxqjtLo8n03y1')
 
 ############################################################
 #training
