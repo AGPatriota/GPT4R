@@ -21,7 +21,7 @@ if(cuda_is_available()){
 	Model = Model$cuda()
 	Context0 = "My lord"
 	Context = bpe_encode(model, x = Context0, type = "ids")[[1]]
-	Tokens  = Generate(Context,Model,max_new_tokens=n_tokens0, temperature = 0.7,top_k = 3, device0="cuda")
+	Tokens  = Generate(Context,Model,block_size0,max_new_tokens=n_tokens0, temperature = 0.7,top_k = 3, device0="cuda")
 }
 
 cat(paste(Context0,bpe_decode(model, x = as.integer(Tokens)), collpase=""))

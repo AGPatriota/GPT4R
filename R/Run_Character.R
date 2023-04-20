@@ -24,7 +24,7 @@ if(cuda_is_available()){
 	Model  = Model$cuda()
 	Context0 = "My lord"
 	Context = Encoder(Context0, Voc)
-	Tokens  = Generate(Context,Model,max_new_tokens=n_tokens0, temperature = 0.7,top_k = 3, device0="cuda")
+	Tokens  = Generate(Context,Model,block_size0,max_new_tokens=n_tokens0, temperature = 0.7,top_k = 3, device0="cuda")
 }
 
 cat(paste(c(Context0,Decoder(Tokens)), collapse=""))
