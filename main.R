@@ -4,8 +4,8 @@ require(luz)
 source('R/GPT.R')
 source('R/Generators.R')
 
-BPE   = TRUE
-Train = TRUE
+BPE   = FALSE
+Train = FALSE
 Run   = TRUE
 
 
