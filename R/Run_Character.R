@@ -20,12 +20,20 @@ Model$load_state_dict(state_dict = torch_load("Model-Shakes_weights-2.pt")$param
 ############################################################
 #Predicting tokens like Shakespeare
 ############################################################
-if(cuda_is_available()){
-	Model  = Model$cuda()
-	Context0 = "My lord"
-	Context = Encoder(Context0, Voc)
-	Tokens  = Generate(Context,Model,block_size0,max_new_tokens=n_tokens0, temperature = 0.7,top_k = 3, device0="cuda")
-}
+Model  = if (cuda_is_available()) Model$cuda() else Model$cpu()
+Context0 = "My lord"
+Context = Encoder(Context0, Voc)
+
+Tokens  = Generate(
+	  Context,
+	  Model,
+	  block_size0,
+	  max_new_tokens=n_tokens0,
+	  temperature = 0.7,
+	  top_k = 3,
+	  device0= if (cuda_is_available()) "cuda" else "cpu"
+	  )
+
 
 cat(paste(c(Context0,Decoder(Tokens)), collapse=""))
 
