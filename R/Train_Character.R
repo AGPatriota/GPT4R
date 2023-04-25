@@ -1,11 +1,18 @@
 #AUTHOR: Alexandre Galvão Patriota
 #IME-USP
 
+library(magrittr)
+
+source("R/Generators.R")
+source("R/GPT.R")
+source("R/aux.R")
+source("config.R")
+
 ############################################################
 #Manually tokenizing the text and finding the vocabulary. 
 ############################################################
 
-File = readChar(fileName, file.info(fileName)$size)
+File <- base::readChar(config$file_name, file.info(config$file_name)$size)
 Voc = c("<PAD>",sort(unique(unlist(strsplit(File, "")))))
 
 ############################################################
@@ -18,40 +25,48 @@ nvoc0   <- length(Voc)
 ############################################################
 #Defining train data and test data
 ############################################################
-set.seed(1)
-prop <- 0.9
-n    <- round(length(Encoded)*prop)
-train_data <- Encoded[1:n]
-test_data  <- Encoded[(n+1):length(Encoded)]
-BD.train   <- data_GPT(train_data, block_size0, test=FALSE)
-BD.test    <- data_GPT(test_data,  block_size0, test=TRUE)
+data <- train_test_split(prop = config$split_prop,
+                         tokens = Encoded,
+                         dataset_generator = data_GPT,
+                         block_size = config$block_size,
+                         seed = 1)
+BD.train <- data$train
+BD.test <- data$test
 
 ############################################################
 #Setting the model
 ############################################################
-
-torch_manual_seed(42)
-lr0   <-  0.0003/2
+torch::torch_manual_seed(42)
 
 Model <- GPT %>%
-  setup(loss = nn_cross_entropy_loss_0(), optimizer = optim_adam) %>%
-  set_hparams(block_size = block_size0, ncol = ncol0 ,N_Layers = N_Layers0,  nvoc = nvoc0,Head=Head0, p0 = p00) %>%
-  set_opt_hparams(lr = lr0)
+  luz::setup(loss = nn_cross_entropy_loss_0(), optimizer = torch::optim_adam) %>%
+  luz::set_hparams(
+    block_size = config$block_size,
+    ncol = config$ncol,
+    N_Layers = config$N_Layers,
+    nvoc = nvoc0,
+    Head = config$Head,
+    p0 = config$p0
+  ) %>%
+  luz::set_opt_hparams(lr = config$lr)
 
 ############################################################
-#Training the model. 
-#Change the number of workers.
+# Training the model.
+# Change the number of workers.
 ############################################################
+clip <- luz::luz_callback_gradient_clip(max_norm = 1, norm_type = 2)
 
-clip  <- luz_callback_gradient_clip(max_norm = 1, norm_type = 2)
+fitted <- luz::fit(Model,
+  BD.train,
+  epochs = config$epochs,
+  accelerator = luz::accelerator(),
+  valid_data = BD.test,
+  dataloader_options = list(
+    batch_size = config$batch_size,
+    num_workers = config$num_workers,
+    shuffle = FALSE
+  ),
+  callbacks = list(clip)
+)
 
-fitted  <- fit(Model, 
-	       BD.train, 
-	       epochs = epochs0, 
-	       accelerator = luz::accelerator(), 
-	       valid_data = BD.test, 
-	       dataloader_options = list(batch_size = batch_size0, num_workers = Workers0, shuffle = FALSE),
-	       callbacks = list(clip))
-
-luz_save_model_weights(fitted, "Model-Shakes_weights-2.pt")
-
+luz::luz_save_model_weights(fitted, "Model-Shakes_weights-2.pt")

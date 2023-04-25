@@ -1,8 +1,11 @@
 #AUTHOR: Alexandre Galvão Patriota
 #IME-USP
 
+source("R/GPT.R")
+source("R/Generators.R")
+source("config.R")
 
-File = readChar(fileName, file.info(fileName)$size)
+File = readChar(config$file_name, file.info(config$file_name)$size)
 Voc = c("<PAD>",sort(unique(unlist(strsplit(File, "")))))
 nvoc0   <- length(Voc)
 
@@ -10,30 +13,35 @@ nvoc0   <- length(Voc)
 ############################################################
 #Loading the model
 ############################################################
-Model <- GPT(block_size = block_size0, ncol = ncol0 ,N_Layers = N_Layers0,  nvoc = nvoc0,Head=Head0)
+Model <- GPT(
+  block_size = config$block_size,
+  ncol = config$ncol,
+  N_Layers = config$N_Layers,
+  nvoc = nvoc0,
+  Head = config$Head
+)
  
 ############################################################
 #Updating the modeol with trained parameters
 ############################################################
-Model$load_state_dict(state_dict = torch_load("Model-Shakes_weights-2.pt")$parameters )
+Model$load_state_dict(state_dict = torch::torch_load("Model-Shakes_weights-2.pt")$parameters)
 
 ############################################################
 #Predicting tokens like Shakespeare
 ############################################################
-Model  = if (cuda_is_available()) Model$cuda() else Model$cpu()
-Context0 = "My lord"
-Context = Encoder(Context0, Voc)
+Model  = if (torch::cuda_is_available()) Model$cuda() else Model$cpu()
+Context = Encoder(initial_context, Voc)
 
 Tokens  = Generate(
 	  Context,
 	  Model,
-	  block_size0,
-	  max_new_tokens=n_tokens0,
-	  temperature = 0.7,
-	  top_k = 3,
-	  device0= if (cuda_is_available()) "cuda" else "cpu"
+	  config$block_size,
+	  max_new_tokens=config$max_new_tokens,
+	  temperature = config$temperature,
+	  top_k = config$top_k,
+	  device0= if (torch::cuda_is_available()) "cuda" else "cpu"
 	  )
 
 
-cat(paste(c(Context0,Decoder(Tokens)), collapse=""))
+cat(paste(c(initial_context,Decoder(Tokens)), collapse=""))
 

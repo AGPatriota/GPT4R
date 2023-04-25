@@ -1,35 +1,44 @@
 #AUTHOR: Alexandre Galvão Patriota
 #IME-USP
 
-model <- bpe_load_model("youtokentome.bpe")
-nvoc0     <- length(model$vocabulary[,2])
+source("config.R")
+source("R/GPT.R")
+source("R/Generators.R")
+
+model_bpe <- tokenizers.bpe::bpe_load_model(config$tokenizer_model_path)
+nvoc0 <- length(model_bpe$vocabulary[, 2])
 
 ############################################################
 #Loading the model
 ############################################################
-Model <- GPT(block_size = block_size0, ncol = ncol0 ,N_Layers = N_Layers0,  nvoc = nvoc0,Head=Head0)
+Model <- GPT(
+  block_size = config$block_size,
+  ncol = config$ncol,
+  N_Layers = config$N_Layers,
+  nvoc = nvoc0,
+  Head = config$Head
+)
  
 ############################################################
 #Updating the modeol with trained parameters
 ############################################################
-Model$load_state_dict(state_dict = torch_load("Model-Shakes_weights.pt")$parameters )
+Model$load_state_dict(state_dict = torch::torch_load("Model-Shakes_weights.pt")$parameters)
 
 ############################################################
 #Predicting tokens like Shakespeare
 ############################################################
-Model = if (cuda_is_available()) Model$cuda() else Model$cpu()
-Context0 = "My lord"
-Context = bpe_encode(model, x = Context0, type = "ids")[[1]]
+Model = if (torch::cuda_is_available()) Model$cuda() else Model$cpu()
+Context = tokenizers.bpe::bpe_encode(model_bpe, x = initial_context, type = "ids")[[1]]
 Tokens  = Generate(
   Context,Model,
-  block_size0,
-  max_new_tokens=n_tokens0,
-  temperature = 0.7,
-  top_k = 3,
-  device0=if (cuda_is_available()) "cuda" else "cpu"
+  config$block_size,
+  max_new_tokens=config$max_new_tokens,
+  temperature = config$temperature,
+  top_k = config$top_k,
+  device0=if (torch::cuda_is_available()) "cuda" else "cpu"
   )
 
-cat(paste(Context0,bpe_decode(model, x = as.integer(Tokens)), collpase=""))
+cat(paste(initial_context,tokenizers.bpe::bpe_decode(model_bpe, x = as.integer(Tokens)), collpase=""))
 
 
 
