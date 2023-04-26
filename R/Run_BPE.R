@@ -13,7 +13,7 @@ nvoc0 <- length(model_bpe$vocabulary[, 2])
 ############################################################
 Model <- GPT(
   block_size = config$block_size,
-  ncol = config$ncol,
+  n_embd = config$n_embd,
   N_Layers = config$N_Layers,
   nvoc = nvoc0,
   Head = config$Head

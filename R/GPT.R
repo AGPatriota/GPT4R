@@ -2,36 +2,36 @@
 # IME-USP
 
 GPT <- torch::nn_module(
-  initialize = function(block_size, ncol, N_Layers, nvoc, Head, p0 = 0.1) {
+  initialize = function(block_size, n_embd, N_Layers, nvoc, Head, p0 = 0.1) {
     self$N <- N_Layers
     self$block_size <- block_size
-    self$PE <- torch::nn_embedding(block_size, ncol)
-    self$L0 <- torch::nn_embedding(nvoc, ncol, padding_idx = 1)
+    self$PE <- torch::nn_embedding(block_size, n_embd)
+    self$L0 <- torch::nn_embedding(nvoc, n_embd, padding_idx = 1)
     self$MH <- torch::nn_module_list(lapply(
       1:N_Layers,
-      function(x) torch::nn_multihead_attention(ncol, Head, dropout = p0)
+      function(x) torch::nn_multihead_attention(n_embd, Head, dropout = p0)
     ))
     self$scale1 <- torch::nn_module_list(lapply(
       1:N_Layers,
-      function(x) torch::nn_layer_norm(ncol)
+      function(x) torch::nn_layer_norm(n_embd)
     ))
     self$scale2 <- torch::nn_module_list(lapply(
       1:N_Layers,
-      function(x) torch::nn_layer_norm(ncol)
+      function(x) torch::nn_layer_norm(n_embd)
     ))
-    self$scale3 <- torch::nn_layer_norm(ncol, elementwise_affine = TRUE)
+    self$scale3 <- torch::nn_layer_norm(n_embd, elementwise_affine = TRUE)
     self$FFN <- torch::nn_module_list(lapply(
       1:N_Layers,
       function(x) {
         torch::nn_sequential(
-          torch::nn_linear(ncol, 4 * ncol),
+          torch::nn_linear(n_embd, 4 * n_embd),
           torch::nn_gelu(),
-          torch::nn_linear(4 * ncol, ncol),
+          torch::nn_linear(4 * n_embd, n_embd),
           torch::nn_dropout(p0)
         )
       }
     ))
-    self$A <- torch::nn_linear(ncol, nvoc, bias = FALSE)
+    self$A <- torch::nn_linear(n_embd, nvoc, bias = FALSE)
     self$drop0 <- torch::nn_dropout(p = p0)
   },
   forward = function(x) {

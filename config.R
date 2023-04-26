@@ -1,7 +1,7 @@
 config <- list(
   file_name = "Shakespeare.txt",
   block_size = 256, # Maximum Context
-  ncol = 384, # Embedding dimension
+  n_embd = 384, # Embedding dimension
   N_Layers = 6, # Number of layers
   Head = 6, # Number of heads
   batch_size = 32,

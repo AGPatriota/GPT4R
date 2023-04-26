@@ -51,7 +51,7 @@ Model <- GPT %>%
   luz::setup(loss = nn_cross_entropy_loss_0(), optimizer = torch::optim_adam) %>%
   luz::set_hparams(
     block_size = config$block_size,
-    ncol = config$ncol,
+    n_embd = config$n_embd,
     N_Layers = config$N_Layers,
     nvoc = nvoc0,
     Head = config$Head,
