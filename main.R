@@ -1,51 +1,41 @@
 require(tokenizers.bpe)
 require(torch)
-require(luz)
 source('R/GPT.R')
 source('R/Generators.R')
-
-BPE   = FALSE
-Train = FALSE
-Run   = TRUE
+source('config.R')
 
 ############################################################
 #training
 ############################################################
-if (Train) {
-  if (BPE) {
-    # Train the Tokens?
-    Train_tokens <- FALSE
-    source("R/Train_BPE.R")
-  } else {
-    source("R/Train_Character.R")
-  }
+if (config$Train) {
+	require(luz)
+	cat("Training with", ifelse(config$BPE, "BPE tokenizer \n", "Character-based tokenizer \n"))
+  source("R/Train.R")
 }
 
 ############################################################
 #Running/predicting
 ############################################################
 
-if (Run) {
-  initial_context = "My lord"
-  if (BPE) {
-    if (file.exists("Model-Shakes_weights.pt")) {
-      source("R/Run_BPE.R")
-    } else {
-      cat("
+if (config$Run) {
+  if (config$BPE) {
+    if (!file.exists("Model-Shakes_weights_BPE.pt")){ 
+	    cat("
 Make sure you have downloaded the required weights:  
 https://drive.google.com/file/d/1XKr__cI4ZBZEiv1EGZc1Yc-bCQGOobKX  
-")
+")} else {
+          source("R/Run.R")
     }
   }
-  if (!BPE) {
-    if (file.exists("Model-Shakes_weights-2.pt")) {
-      source("R/Run_Character.R")
-    } else {
-      cat("
+
+  if (!config$BPE) {
+    if (!file.exists("Model-Shakes_weights_Character.pt")) {
+	    cat("
 Make sure you have downloaded the required weights:  
 https://drive.google.com/file/d/1VDVRLk0o6wsdrlGTfF8xxqjtLo8n03y1
-")
-    }
+")} else {
+      source("R/Run.R")
+    } 
   }
 }
 

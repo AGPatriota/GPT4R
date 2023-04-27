@@ -5,6 +5,7 @@ A simple GPT code in R trained with Shakespeare text. You can use the trained mo
 
 The Shakespeare text was downloaded [here](https://github.com/karpathy/ng-video-lecture/blob/master/input.txt)
 
+I would like to thanks [Álvaro Kothe](https://github.com/Alvaro-Kothe) for helping me to organize some parts of the code in an early version.
 
 ## Dependencies:
 
@@ -20,11 +21,10 @@ If you have a GPU, you can try training this baby GPT model from scratch. You ne
 source('main.R')
 ```
 
-The file `Train_BPE.R` trains the model by using a vocabulary tokenized by BPE (from the package `tokenizers.bpe`). The file `youtokentome.bpe` contains the tokenized vocabulary (of size 68 tokens) for the Shakespeare text. The weights for this version, that generates tokens with no line breaks, can be downloaded [here](https://drive.google.com/file/d/1XKr__cI4ZBZEiv1EGZc1Yc-bCQGOobKX)
-
-The file `Train_Character.R`  trains the model by using a vocabulary with 65 single characters plus a PAD character. This procedure is closer to what Karpathy does in his video and the generated text contains proper line breaks which makes the reading a little bit more pleasant. Download the trained weights for this model [here](https://drive.google.com/file/d/1VDVRLk0o6wsdrlGTfF8xxqjtLo8n03y1)
+The file `Train.R` trains the model. If `BPE = TRUE`, then it will use a vocabulary tokenized by BPE (from the package `tokenizers.bpe`). The file `youtokentome.bpe` contains the tokenized vocabulary (of size 68 tokens) for the Shakespeare text. If `BPE = TRUE`, then it will use a vocabulary with 65 single characters plus a PAD character. This latter procedure is closer to what Karpathy does in his video and the generated text contains proper line breaks which makes the reading a little bit more pleasant.
 
 You can also use the Automatic Mixing Precision (AMP) which is implemented in `torch` package but not in `luz` yet (19/04/2023). This helps increasing the capacity of your training.
+
 
 ## Examples of Shakespeare-like texts
 

@@ -5,8 +5,8 @@ GPT <- torch::nn_module(
   initialize = function(block_size, n_embd, N_Layers, nvoc, Head, p0 = 0.1) {
     self$N <- N_Layers
     self$block_size <- block_size
-    self$PE <- torch::nn_embedding(block_size, n_embd)
-    self$L0 <- torch::nn_embedding(nvoc, n_embd, padding_idx = 1)
+    self$wpe <- torch::nn_embedding(block_size, n_embd)
+    self$wte <- torch::nn_embedding(nvoc, n_embd, padding_idx = 1)
     self$MH <- torch::nn_module_list(lapply(
       1:N_Layers,
       function(x) torch::nn_multihead_attention(n_embd, Head, dropout = p0)
@@ -31,7 +31,7 @@ GPT <- torch::nn_module(
         )
       }
     ))
-    self$A <- torch::nn_linear(n_embd, nvoc, bias = FALSE)
+    self$ln_f <- torch::nn_linear(n_embd, nvoc, bias = FALSE)
     self$drop0 <- torch::nn_dropout(p = p0)
   },
   forward = function(x) {
@@ -50,7 +50,7 @@ GPT <- torch::nn_module(
       )$unsqueeze(1)
       x <- torch::torch_cat(list(zeros, x), 2)
     }
-    output <- self$L0(x) + self$PE(x1)
+    output <- self$wte(x) + self$wpe(x1)
     output <- self$drop0(output)
     for (j in 1:self$N) {
       Q <- torch::torch_transpose(self$scale1[[j]](output), 1, 2)
@@ -62,7 +62,7 @@ GPT <- torch::nn_module(
       )
       output <- output + self$FFN[[j]](self$scale2[[j]](output))
     }
-    output <- self$A(self$scale3(output))
+    output <- self$ln_f(self$scale3(output))
     output
   }
 )
