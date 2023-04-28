@@ -40,7 +40,7 @@ if(!config$BPE) {
 
 if(config$BPE) {
 	Model$load_state_dict(state_dict = torch::torch_load("Model-Shakes_weights_BPE.pt")$parameters)
-	Context = tokenizers.bpe::bpe_encode(model_bpe, x = config$initial_context, type = "ids")[[1]]
+	Context = tokenizers.bpe::bpe_encode(model_bpe, x = config$initial_context, type = "ids")[[1]]+1
 }
 
 ############################################################
@@ -63,4 +63,4 @@ if(!config$BPE)
 	cat(paste(c(config$initial_context,Decoder(Tokens)), collapse=""))
 
 if(config$BPE) 
-	cat(paste(config$initial_context,tokenizers.bpe::bpe_decode(model_bpe, x = as.integer(Tokens)), collpase=""))
+	cat(paste(config$initial_context,tokenizers.bpe::bpe_decode(model_bpe, x = as.integer(Tokens-1)), collpase=""))

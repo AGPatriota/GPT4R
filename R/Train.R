@@ -30,7 +30,7 @@ if(config$BPE) {
 	}
 	Voc  <- model$vocabulary[, 2]
 	File <- base::readChar(config$file_name, file.info(config$file_name)$size)
-	Encoded <- tokenizers.bpe::bpe_encode(model, x = File, type = "ids")[[1]]
+	Encoded <- tokenizers.bpe::bpe_encode(model, x = File, type = "ids")[[1]]+1
 }
 
 
