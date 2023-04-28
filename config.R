@@ -2,7 +2,7 @@ config <- list(
   #corpus for training (global)
   file_name = "Shakespeare.txt",
   
-  BPE = !TRUE,
+  BPE = TRUE,
   Train = !TRUE,
   Run   = TRUE,
 
@@ -14,11 +14,12 @@ config <- list(
   vocab_size = 68,  # Vocabulary size for BPE (for trainning)
 
   #Training parameters (global)
-  lr = 0.00015,     # Learning rate  
-  batch_size = 32,  # Batch size
+  lr = 0.003,     # Learning rate  
+  batch_size = 64,  # Batch size
   p0 = 0.2,         # Dropout proportion
-  epochs = 9,       # Number of epochs
+  epochs = 5,       # Number of epochs
   num_workers = 6,  # Number of CPU workers
+  AMP = TRUE, #Training with Automatic Mixing Precision float16
 
   #Parameters for BPE algorithm (Specific)
   coverage = 0.999, # Coverage for BPE algorithm

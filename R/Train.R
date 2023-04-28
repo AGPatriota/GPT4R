@@ -70,6 +70,7 @@ Model <- GPT %>%
 # Change the number of workers.
 ############################################################
 clip <- luz::luz_callback_gradient_clip(max_norm = 1, norm_type = 2)
+amp <- luz::luz_callback_mixed_precision()
 
 fitted <- luz::fit(Model,
   BD.train,
@@ -81,7 +82,7 @@ fitted <- luz::fit(Model,
     num_workers = config$num_workers,
     shuffle = FALSE
   ),
-  callbacks = list(clip)
+  callbacks = if(config$AMP) list(clip, amp) else list(clip, amp)
 )
 
 if(!config$BPE) 
