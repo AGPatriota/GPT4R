@@ -82,7 +82,7 @@ fitted <- luz::fit(Model,
     num_workers = config$num_workers,
     shuffle = FALSE
   ),
-  callbacks = if(config$AMP) list(clip, amp) else list(clip, amp)
+  callbacks = if(config$AMP) list(clip, amp) else list(clip)
 )
 
 if(!config$BPE) 
