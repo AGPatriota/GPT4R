@@ -64,6 +64,10 @@ nn_cross_entropy_loss_0 = torch::nn_module(
 
 
 Generate = function(idx, Model, block_size , max_new_tokens = 100, temperature=0.7, top_k = 3, device0="cuda"){
+	cat("\n \n===================== Generating Tokens =====================\n \n")
+        if(!config$BPE)	cat(paste(Decoder(idx), collapse=""))
+    	if(config$BPE) cat(tokenizers.bpe::bpe_decode(model_bpe, x = as.integer(idx-1)))
+
 	idx = torch::torch_tensor(idx, dtype=torch::torch_int(), device=device0)
 	idx = torch::torch_unsqueeze(idx, 1)
 	idx0= idx
@@ -85,7 +89,15 @@ Generate = function(idx, Model, block_size , max_new_tokens = 100, temperature=0
             probs = torch::nnf_softmax(logits,-1)
             idx_next = torch::torch_multinomial(probs, num_samples=1)
             idx = torch::torch_cat(list(idx, idx_next), 2)
+
+    	    if(!config$BPE) cat(Decoder(as.integer(idx_next$cpu())))
+    	    if(config$BPE){
+		aa = model_bpe$vocabulary[as.integer(idx_next$cpu()),2]
+	   	aa = gsub("▁", " ", aa)
+		cat(aa)
 	    }
+   }
+	cat("\n")
 	idx  = idx$to(device = 'cpu')
 	idx  = as.integer(idx)[-c(1:length(idx0))]
 	return(idx)

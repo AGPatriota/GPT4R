@@ -59,8 +59,8 @@ Tokens  = Generate(
 	  device0= if (torch::cuda_is_available()) "cuda" else "cpu"
 	  )
 
-if(!config$BPE)
-	cat(paste(c(config$initial_context,Decoder(Tokens)), collapse=""))
+#if(!config$BPE)
+#	cat(paste(c(config$initial_context,Decoder(Tokens)), collapse=""))
 
-if(config$BPE) 
-	cat(paste(config$initial_context,tokenizers.bpe::bpe_decode(model_bpe, x = as.integer(Tokens-1)), collpase=""))
+#if(config$BPE) 
+#	cat(paste(config$initial_context,tokenizers.bpe::bpe_decode(model_bpe, x = as.integer(Tokens-1)), collpase=""))
