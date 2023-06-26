@@ -82,12 +82,14 @@ Generate = function(idx, Model, block_size , max_new_tokens = 100, temperature=0
             logits = Model$eval()(idx_cond)
             logits = logits[, -1, ] / temperature
             if(!is.null(top_k)){
-                v = torch::torch_topk(logits, min(top_k, logits$size(-1)))
-                logits[, -v[[2]][1,]] = -Inf
+                logits = logits$topk(top_k)
+		probs = torch::nnf_softmax(logits[[1]],-1)
+                selected = torch::torch_multinomial(probs, num_samples=1)
+		idx_next <- logits[[2]][,selected$item()]$unsqueeze(1)
 	    }
-
-            probs = torch::nnf_softmax(logits,-1)
-            idx_next = torch::torch_multinomial(probs, num_samples=1)
+           if(is.null(top_k)){
+                idx_next = torch::torch_max(logits, 2)[[2]]$unsqueeze(1)
+	    }
             idx = torch::torch_cat(list(idx, idx_next), 2)
 
     	    if(!config$BPE) cat(Decoder(as.integer(idx_next$cpu())))
