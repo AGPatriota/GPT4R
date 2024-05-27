@@ -35,21 +35,14 @@ GPT <- torch::nn_module(
     self$drop0 <- torch::nn_dropout(p = p0)
   },
   forward = function(x) {
-    x1 <- torch::torch_arange(1, self$block_size,
+    x1 <- torch::torch_arange(1, x$size(2),
       dtype = torch::torch_int(),
       device = x$device
     )$unsqueeze(1)
-    wei <- torch::torch_zeros(self$block_size, self$block_size,
+    wei <- torch::torch_zeros(x$size(2), x$size(2),
       dtype = torch::torch_bool(), device = x$device
     )
     wei[upper.tri(wei)] <- 1
-    if (x$size(2) < self$block_size) {
-      zeros <- torch::torch_tensor(rep(1, self$block_size - x$size(2)),
-        dtype = torch::torch_int(),
-        device = x$device
-      )$unsqueeze(1)
-      x <- torch::torch_cat(list(zeros, x), 2)
-    }
     output <- self$wte(x) + self$wpe(x1)
     output <- self$drop0(output)
     for (j in 1:self$N) {

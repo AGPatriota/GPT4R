@@ -2,7 +2,7 @@ config <- list(
   #corpus for training (global)
   file_name = "Shakespeare.txt",
   
-  BPE = TRUE,
+  BPE = !TRUE,
   Train = !TRUE,
   Run   = TRUE,
 

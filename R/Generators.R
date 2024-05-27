@@ -80,7 +80,7 @@ Generate = function(idx, Model, block_size , max_new_tokens = 100, temperature=0
 			    idx_cond = idx[,k1:k2]}
 
             logits = Model$eval()(idx_cond)
-            logits = logits[, -1, ] / temperature
+            logits = logits[, min(idx$size(2),logits$size(2)), ] / temperature
             if(!is.null(top_k)){
                 logits = logits$topk(top_k)
 		probs = torch::nnf_softmax(logits[[1]],-1)
